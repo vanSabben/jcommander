@@ -1,3 +1,44 @@
+ParameterDescription
+```java
+public static void validateValueParameter(Class<? extends IValueValidator> validator,
+      String name, Object value) {
+    try {
+      if (validator != NoValueValidator.class) {
+        p("Validating value parameter:" + name + " value:" + value + " validator:" + validator);
+      }
+      validator.newInstance().validate(name, value);
+    } catch (InstantiationException | IllegalAccessException e) {
+      throw new ParameterException("Can't instantiate validator:" + e);
+    }
+  }
+```
+
+JCommander
+```java
+                    // Regular (non-command) parsing
+                    //
+                    List mp = getMainParameter(arg);
+                    String value = a; // If there's a non-quoted version, prefer that one
+                    Object convertedValue = value;
+
+                    if (mainParameter.getGenericType() instanceof ParameterizedType) {
+                        ParameterizedType p = (ParameterizedType) mainParameter.getGenericType();
+                        Type cls = p.getActualTypeArguments()[0];
+                        if (cls instanceof Class) {
+                            convertedValue = convertValue(mainParameter, (Class) cls, null, value);
+                        }
+                    }
+                    
+                    for(final Class<? extends IParameterValidator> validator : mainParameterAnnotation.validateWith() ) {
+                        ParameterDescription.validateParameter(mainParameterDescription,
+                        	validator,
+                            "Default", value);
+                    }
+
+                    mainParameterDescription.setAssigned(true);
+                    mp.add(convertedValue);
+```
+
 JCommander
 ==========
 
